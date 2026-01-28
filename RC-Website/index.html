@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R.C. | REBELIVIOUS CREATIVE</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --red: #D10000; --black: #050505; --white: #FFFFFF; }
+        * { margin: 0; padding: 0; box-sizing: border-box; border: none !important; outline: none !important; }
+        body { background-color: var(--black); color: var(--white); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; opacity: 0.3; }
+        section { position: relative; z-index: 2; min-height: 100vh; padding: 10vh 8vw; display: flex; flex-direction: column; justify-content: center; }
+        .specs { font-family: 'Courier New', monospace; color: var(--red); font-size: 0.9rem; letter-spacing: 6px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
+        h1 { font-family: 'Oswald', sans-serif; font-size: clamp(4rem, 15vw, 11rem); font-weight: 700; line-height: 0.8; letter-spacing: -4px; text-transform: uppercase; color: var(--white); }
+        h1 span { color: var(--red); }
+        .hero-sub { font-size: 1.3rem; max-width: 500px; margin-top: 30px; font-weight: 500; color: var(--white); text-shadow: 2px 2px 15px rgba(0,0,0,1); }
+        
+        .viewer-box { 
+            width: 100%; max-width: 900px; margin: 40px auto; 
+            cursor: ew-resize; background: transparent; 
+            display: flex; justify-content: center; align-items: center; 
+        }
+        #image-360 { 
+            width: 100%; height: auto; max-height: 70vh; 
+            display: block; user-select: none; pointer-events: none; 
+            object-fit: contain; 
+        }
+
+        .footer { text-align: center; background: rgba(5,5,5,0.95); padding: 100px 20px; }
+        .btn { margin-top: 40px; padding: 20px 60px; border: 3px solid var(--red) !important; color: var(--white); text-decoration: none; font-family: 'Oswald'; font-size: 1.3rem; letter-spacing: 3px; font-weight: bold; transition: 0.4s; display: inline-block; background: #000; }
+        .btn:hover { background: var(--red); transform: scale(1.05); }
+        .reveal { opacity: 0; transform: translateY(30px); transition: 1s all ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    
+    <section class="hero">
+        <div class="reveal">
+            <span class="specs">EST. 2026 // JB</span>
+            <h1>THE TABLE<br>IS <span>R.C.</span></h1>
+            <p class="hero-sub">REBELIVIOUS CREATIVE. Merging raw street aesthetics with high-performance 3D design.</p>
+        </div>
+    </section>
+
+    <section id="interactive-section">
+        <div class="reveal" style="text-align: center;">
+            <span class="specs">360 Precision</span>
+            <h2 style="font-family: 'Oswald'; font-size: 3rem; color: white;">INTERACTIVE RENDER</h2>
+            <div class="viewer-box" id="viewer-360">
+                <img id="image-360" src="360object/frame1.png" alt="360 View">
+            </div>
+            <p style="color: var(--red); font-family: 'Courier New'; letter-spacing: 3px; font-size: 0.8rem; margin-top: 20px;">
+                <i class="fas fa-arrows-alt-h"></i> DRAG TO ROTATE
+            </p>
+        </div>
+    </section>
+
+    <section class="footer">
+        <div class="reveal">
+            <a href="https://www.instagram.com/rebelivious.c" target="_blank" style="font-family:'Oswald'; color:white; font-size:2.5rem; text-decoration:none;">@REBELIVIOUS.C</a>
+            <h2 style="font-family: 'Oswald'; font-size: 4rem; margin-top: 50px;">INITIATE?</h2>
+            <a href="https://wa.me/60169429370?text=SYSTEM%20INITIATE" class="btn">WHATSAPP ME</a>
+        </div>
+    </section>
+
+    <script>
+        // --- CONFIGURATION: 30 FRAMES ---
+        const totalFrames = 30; 
+        const images = [];
+        
+        // --- 1. PRELOADER (Looks inside 360object folder) ---
+        for (let i = 1; i <= totalFrames; i++) {
+            const img = new Image();
+            img.src = `360object/frame${i}.png`; 
+            images.push(img);
+        }
+
+        // --- 2. 3D BACKGROUND ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+        let myTag;
+        new THREE.OBJLoader().load('TAGGING.obj', (obj) => {
+            myTag = obj;
+            obj.traverse(c => { if (c.isMesh) c.material = new THREE.MeshStandardMaterial({ color: 0x444444, wireframe: true, transparent: true, opacity: 0.2 }); });
+            myTag.scale.set(0.7, 0.7, 0.7); scene.add(myTag);
+        });
+        camera.position.z = 5;
+
+        // --- 3. 360 ROTATION LOGIC ---
+        const viewer = document.getElementById('viewer-360');
+        const mainImg = document.getElementById('image-360');
+        let isDragging = false, startX = 0, currentFrame = 1;
+
+        const updateImage = (x) => {
+            if (!isDragging) return;
+            
+            const dragDistance = x - startX;
+            // Sensitivity 12 is better for 30 frames
+            const sensitivity = 12; 
+            
+            if (Math.abs(dragDistance) > sensitivity) {
+                if (dragDistance > 0) {
+                    currentFrame = currentFrame >= totalFrames ? 1 : currentFrame + 1;
+                } else {
+                    currentFrame = currentFrame <= 1 ? totalFrames : currentFrame - 1;
+                }
+                // Update image from folder
+                mainImg.src = `360object/frame${currentFrame}.png`;
+                startX = x;
+            }
+        };
+
+        // Events
+        viewer.onmousedown = (e) => { isDragging = true; startX = e.pageX; };
+        window.onmouseup = () => { isDragging = false; };
+        window.onmousemove = (e) => updateImage(e.pageX);
+        viewer.ontouchstart = (e) => { isDragging = true; startX = e.touches[0].pageX; };
+        viewer.ontouchend = () => { isDragging = false; };
+        viewer.ontouchmove = (e) => { updateImage(e.touches[0].pageX); e.preventDefault(); };
+
+        // Animation Loop
+        let mX = 0, mY = 0;
+        document.onmousemove = (e) => { mX = (e.clientX - window.innerWidth/2)*0.0006; mY = (e.clientY - window.innerHeight/2)*0.0006; };
+        function animate() {
+            requestAnimationFrame(animate);
+            if (myTag) { myTag.rotation.x += 0.05*(mY-myTag.rotation.x); myTag.rotation.y += 0.05*(mX-myTag.rotation.y); }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Scroll Reveal
+        function reveal() {
+            document.querySelectorAll('.reveal').forEach(r => {
+                if (r.getBoundingClientRect().top < window.innerHeight - 100) r.classList.add('active');
+            });
+        }
+        window.onscroll = reveal; reveal();
+    </script>
+</body>
+</html>
