@@ -56,7 +56,7 @@
             <span class="specs">360 Precision</span>
             <h2 style="font-family: 'Oswald'; font-size: 3rem; color: white;">INTERACTIVE RENDER</h2>
             <div class="viewer-box" id="viewer-360">
-                <img id="image-360" src="360object/frame ${i}.png" alt="360 View">
+                <img id="image-360" src="360object/frame 1.png" alt="360 View">
             </div>
             <p style="color: var(--red); font-family: 'Courier New'; letter-spacing: 3px; font-size: 0.8rem; margin-top: 20px;">
                 <i class="fas fa-arrows-alt-h"></i> DRAG TO ROTATE
@@ -80,7 +80,8 @@
         // --- 1. PRELOADER (Looks inside 360object folder) ---
         for (let i = 1; i <= totalFrames; i++) {
             const img = new Image();
-            img.src = `360object/frame${i}.png`; 
+            // FIXED: Added space: frame ${i}.png
+            img.src = `360object/frame ${i}.png`; 
             images.push(img);
         }
 
@@ -118,8 +119,8 @@
                 } else {
                     currentFrame = currentFrame <= 1 ? totalFrames : currentFrame - 1;
                 }
-                // Update image from folder
-                mainImg.src = `360object/frame${currentFrame}.png`;
+                // FIXED: Added space here too: frame ${currentFrame}.png
+                mainImg.src = `360object/frame ${currentFrame}.png`;
                 startX = x;
             }
         };
@@ -151,5 +152,4 @@
         window.onscroll = reveal; reveal();
     </script>
 </body>
-
 </html>
